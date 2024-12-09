@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listas Criadas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: url('img.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.2);
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .response-box {
+      cursor: pointer;
+      padding: 5px 10px;
+      border: 1px solid #ggg;
+      border-radius: 5px;
+      background-color: #ggg;
+      color: #000;
+      font-size: 0.8em;
+      text-align: center;
+      width: 20px;
+      margin-left: 130px; /* Move G/R closer to the trash icon */
+    }
+    .response-options {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      color: #000;
+      border-radius: 5px;
+      padding: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .response-options button {
+      margin: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.8em;
+    }
+    .response-options .green {
+      background-color: #28a745;
+    }
+    .response-options .red {
+      background-color: #dc3545;
+    }
+    .delete-icon {
+      cursor: pointer;
+      color: #dc3545;
+      font-size: 1.2em;
+      margin-left: 10px;
+    }
+    .stats {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 5px;
+    }
+    .back-home {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .back-home a {
+      color: #28a745;
+      font-size: 1.5em;
+      text-decoration: none;
+    }
+    .delete-button {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 3px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 50%;
+    }
+    .background-selector {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .background-selector select {
+      padding: 2px;
+      border-radius: 2px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Listas Criadas</h1>
+  <div class="container">
+    <div id="list"></div>
+
+    <center><button class="delete-button" onclick="clearAll()"><center>🗑️ Apagar Lista</center></button></center>
+
+    <div class="stats" id="stats">
+      <p>Total de jogos respondidos: <span id="total-responded">0</span></p>
+      <p>Porcentagem de Green: <span id="green-percent">0%</span></p>
+      <p>Porcentagem de Red: <span id="red-percent">0%</span></p>
+    </div>
+<div class="back-home">
+      <a href="listagem3.0.html">🏠</a>
+    </div>
+    
+    <div style="float: left;" class="background-selector">
+      <label for="background-select"><strong>Fundo</strong></label>
+      <select id="background-select" onchange="changeBackground()">
+        <option value="img.jpeg">Santos</option>
+        <option value="img2.jpeg">Natural</option>
+        <option value="img3.jpeg">Craques</option>
+        <option value="img4.jpeg">Neymar</option>
+      </select>
+    </div>
+
+    
+  </div>
+
+  <script>
+    const listContainer = document.getElementById("list");
+    const statsTotalResponded = document.getElementById("total-responded");
+    const statsGreenPercent = document.getElementById("green-percent");
+    const statsRedPercent = document.getElementById("red-percent");
+
+    const storedLists = JSON.parse(localStorage.getItem("strategyLists")) || [];
+
+    function renderList() {
+      listContainer.innerHTML = ""; // Limpa a lista antes de renderizar
+
+      storedLists.forEach((item, index) => {
+        const listItem = document.createElement("div");
+        listItem.className = "list-item";
+        listItem.setAttribute("data-index", index);
+        listItem.innerHTML = `
+          <span>${item.strategy} - ${item.teamName}</span>
+          <div class="response-box" onclick="toggleResponseOptions(this)">G/R</div>
+          <div class="response-options">
+            <button class="green" onclick="markResponse(${index}, 'green')">Green</button>
+            <button class="red" onclick="markResponse(${index}, 'red')">Red</button>
+          </div>
+          <span class="delete-icon" onclick="deleteItem(${index})">🗑️</span>
+        `;
+        listContainer.appendChild(listItem);
+
+        // Adiciona cor se já foi respondido
+        if (item.response === "green") {
+          listItem.style.backgroundColor = "#28a745";
+        } else if (item.response === "red") {
+          listItem.style.backgroundColor = "#dc3545";
+        }
+      });
+
+      updateStats();
+    }
+
+    function toggleResponseOptions(box) {
+      const options = box.nextElementSibling;
+      options.style.display = options.style.display === "block" ? "none" : "block";
+    }
+
+    function markResponse(index, response) {
+      storedLists[index].response = response;
+      localStorage.setItem("strategyLists", JSON.stringify(storedLists));
+      renderList();
+    }
+
+    function deleteItem(index) {
+      if (confirm("Deseja apagar este jogo?")) {
+        storedLists.splice(index, 1);
+        localStorage.setItem("strategyLists", JSON.stringify(storedLists));
+        renderList();
+      }
+    }
+
+    function updateStats() {
+      const totalResponded = storedLists.filter(item => item.response).length;
+      const greenCount = storedLists.filter(item => item.response === "green").length;
+      const redCount = storedLists.filter(item => item.response === "red").length;
+
+      const greenPercent = totalResponded > 0 ? ((greenCount / totalResponded) * 100).toFixed(2) : 0;
+      const redPercent = totalResponded > 0 ? ((redCount / totalResponded) * 100).toFixed(2) : 0;
+
+      statsTotalResponded.textContent = totalResponded;
+      statsGreenPercent.textContent = `${greenPercent}%`;
+      statsRedPercent.textContent = `${redPercent}%`;
+    }
+
+    function clearAll() {
+      if (confirm("Deseja apagar toda a lista?")) {
+        localStorage.removeItem("strategyLists");
+        storedLists.length = 0;
+        renderList();
+      }
+    }
+
+    function changeBackground() {
+      const selectedImage = document.getElementById("background-select").value;
+      document.body.style.backgroundImage = `url('${selectedImage}')`;
+    }
+
+    renderList();
+  </script>
+</body>
+</html>

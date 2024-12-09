@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><strong>Lista de Estratégias</strong></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: url('img.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px;
+      border-radius: 5px;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    select, input {
+      width: 60%;
+      padding: 7px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+    button {
+      padding: 6px 80px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .enter {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .delete {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .list {
+      margin-top: 20px;
+    }
+    .strategy-title {
+      font-size: 1.5em;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .list-item {
+      background-color: rgba(255, 255, 255, 0.2);
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .response-box {
+      cursor: pointer;
+      padding: 5px 10px;
+      border: 1px solid #fff;
+      border-radius: 5px;
+      background-color: #fff;
+      color: #000;
+      font-size: 0.8em;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    .response-options {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      color: #000;
+      border-radius: 5px;
+      padding: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .response-options button {
+      margin: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.8em;
+    }
+    .response-options .green {
+      background-color: #28a745;
+    }
+    .response-options .red {
+      background-color: #dc3545;
+    }
+    .view-list-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .view-list-link a {
+      color: #28a745;
+      font-size: 1.2em;
+      text-decoration: none;
+      border: 2px solid #28a745;
+      padding: 1px 1px;
+      border-radius: 5px;
+    }
+    .back-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .back-link a {
+      color: #28a745;
+      font-size: 1.2em;
+      text-decoration: none;
+      border: 2px solid #28a745;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lista de Estratégias</h1>
+  <div class="container">
+
+    <label for="strategy"><strong><div style="height: 15px;">Estratégia</div></strong></label>
+    <select id="strategy">
+      <option value="+1.5 Gols">+1.5 Gols</option>
+      <option value="+2.5 Gols">+2.5 Gols</option>
+      <option value="Ambas M">Ambas M</option>
+      <option value="Favorito">Favorito</option>
+      <option value="Casa/Emp">Casa/Emp</option>
+      <option value="Fora/Emp">Fora/Emp</option>
+    </select>
+
+    <br>
+    <label for="team"><strong><div style="height: 15px;">Equipe</div> </strong></label>
+    <input type="text" id="team" placeholder="Digite o nome da equipe">
+
+    <div class="buttons">
+      <button class="enter" onclick="addTeam()">➤</button>
+      <button class="delete" onclick="clearList()">​📋</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <!-- Link para visualizar as listas criadas -->
+    <div class="view-list-link">
+      <a href="listas4.0.html">Ver Listas Criadas</a>
+    </div>
+    
+    
+     <!-- Seção para selecionar a imagem de fundo -->
+    <label for="background-image">Fundo:</label>
+    <select id="background-image">
+      <option value="img.jpeg">Santos</option>
+      <option value="img2.jpeg">Natural</option>
+      <option value="img3.jpeg">Ídolos</option>
+      <option value="img4.jpeg">Neymar</option>
+ 
+    </select>
+  </div>
+
+  <script>
+    let storedLists = JSON.parse(localStorage.getItem('strategyLists')) || [];
+
+    function addTeam() {
+      const strategy = document.getElementById("strategy").value;
+      const teamName = document.getElementById("team").value.trim();
+
+      if (!teamName) {
+        alert("Por favor, insira o nome de uma equipe.");
+        return;
+      }
+
+      const list = document.getElementById("list");
+
+      // Verifica se o título da estratégia já existe
+      let strategyGroup = document.querySelector(`.strategy-group[data-strategy="${strategy}"]`);
+      if (!strategyGroup) {
+        strategyGroup = document.createElement("div");
+        strategyGroup.className = "strategy-group";
+        strategyGroup.setAttribute("data-strategy", strategy);
+        strategyGroup.innerHTML = `<div class="strategy-title">⚽⚽ ${strategy} ⚽⚽</div>`;
+        list.appendChild(strategyGroup);
+      }
+
+      // Verifica se a equipe já foi adicionada para essa estratégia
+      const existingTeam = storedLists.find(item => item.strategy === strategy && item.teamName === teamName);
+      if (existingTeam) {
+        alert("Esta equipe já foi adicionada para essa estratégia.");
+        return;
+      }
+
+      // Adiciona a equipe dentro do grupo correto
+      const listItem = document.createElement("div");
+      listItem.className = "list-item";
+      listItem.innerHTML = `
+        <span>${teamName}</span>
+        <div class="response-box" onclick="showResponseOptions(this)">Escolha</div>
+        <div class="response-options">
+          <button class="green" onclick="markAsGreen(this)">Green</button>
+          <button class="red" onclick="markAsRed(this)">Red</button>
+        </div>
+      `;
+
+      strategyGroup.appendChild(listItem);
+
+      // Salvar a lista no localStorage
+      storedLists.push({ strategy, teamName });
+      localStorage.setItem('strategyLists', JSON.stringify(storedLists));
+
+      // Limpa o campo de equipe
+      document.getElementById("team").value = "";
+    }
+
+    function showResponseOptions(box) {
+      const options = box.nextElementSibling;
+      options.style.display = "block";
+    }
+
+    function markAsGreen(button) {
+      const listItem = button.closest(".list-item");
+      listItem.style.backgroundColor = "#28a745";
+      hideResponseOptions(button);
+    }
+
+    function markAsRed(button) {
+      const listItem = button.closest(".list-item");
+      listItem.style.backgroundColor = "#dc3545";
+      hideResponseOptions(button);
+    }
+
+    function hideResponseOptions(button) {
+      const options = button.parentElement;
+      options.style.display = "none";
+    }
+
+    function clearList() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+    }
+
+    // Alterar a imagem de fundo com base na seleção
+    document.getElementById("background-image").addEventListener("change", function() {
+      const selectedImage = this.value;
+      document.body.style.backgroundImage = `url('${selectedImage}')`;
+    });
+  </script>
+</body>
+</html>
